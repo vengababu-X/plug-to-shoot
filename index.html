@@ -1,785 +1,605 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Charchery — Charger Controlled Archery (Prototype)</title>
-<link rel="icon" href="data:;base64,iVBORw0KGgo=">
-<style>
-  :root{
-    --bg:#fff7e6;
-    --accent:#13293d;
-    --accent-2:#ffb703;
-    --muted:rgba(19,41,61,0.15);
-    --glass: rgba(255,255,255,0.6);
-    --danger:#e63946;
-    --hud-font: 600 14px/1 "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter, system-ui, -apple-system; -webkit-font-smoothing:antialiased;}
-  #app{display:flex;flex-direction:column;height:100vh;align-items:center;justify-content:flex-start;overflow:hidden;position:relative;}
-  header{width:100%;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;}
-  .brand{display:flex;align-items:center;gap:10px}
-  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#244055);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px}
-  .title{font-weight:700;color:var(--accent);letter-spacing:0.2px}
-  .hud{display:flex;gap:12px;align-items:center}
-  .chip{background:var(--glass);backdrop-filter: blur(6px);border-radius:10px;padding:8px 10px;display:flex;gap:8px;align-items:center;box-shadow:0 6px 18px rgba(19,41,61,0.06)}
-  .chip strong{color:var(--accent);font-weight:700}
-  main{flex:1;display:flex;align-items:center;justify-content:center;width:100%;position:relative;}
-  /* Game container */
-  #gameWrap{width:100%;max-width:480px;height:86vh;background:linear-gradient(180deg,#fff8ea,#fff1d6);border-radius:18px;box-shadow:0 10px 30px rgba(19,41,61,0.08);position:relative;overflow:hidden;margin-bottom:18px;}
-  canvas{display:block;width:100%;height:100%;}
-  /* HUD bottom */
-  .bottomHUD{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .bigButton{background:var(--accent);color:white;padding:12px 16px;border-radius:12px;font-weight:700;border:none;cursor:pointer;box-shadow:0 8px 18px rgba(19,41,61,0.12)}
-  .smallButton{background:transparent;border:1px solid rgba(19,41,61,0.06);padding:8px 10px;border-radius:10px;font-weight:600;cursor:pointer}
-  .state{font:var(--hud-font);color:var(--accent)}
-  /* Modal */
-  .modal{position:absolute;inset:0;background:linear-gradient(0deg, rgba(19,41,61,0.36), rgba(19,41,61,0.36));display:flex;align-items:center;justify-content:center;z-index:40;opacity:0;pointer-events:none;transition:all .22s ease}
-  .modal.open{opacity:1;pointer-events:auto}
-  .modalCard{width:92%;max-width:460px;background:white;border-radius:12px;padding:18px;box-shadow:0 12px 40px rgba(19,41,61,0.16);text-align:left}
-  .modal h2{margin:0 0 8px 0;color:var(--accent)}
-  .modal p{margin:0 0 12px 0;color:#333}
-  .muted{color:#666;font-size:13px}
-  /* charger indicator */
-  .cableIcon{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent-2),#ffca28);display:flex;align-items:center;justify-content:center;font-weight:800;color:#13293d}
-  /* small animations */
-  .pulse{animation:pulse 1.6s infinite}
-  @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
-  /* scoreboard overlay */
-  .overlay{position:absolute;left:18px;top:18px;display:flex;gap:12px;align-items:center;z-index:30}
-  .scoreBox{background:var(--glass);padding:8px 12px;border-radius:10px;font-weight:700;color:var(--accent);box-shadow:0 8px 18px rgba(19,41,61,0.06)}
-  /* game over sheet */
-  .gameOver{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:60;pointer-events:none;opacity:0;transition:all .18s}
-  .gameOver.visible{pointer-events:auto;opacity:1}
-  .sheet{background:white;border-radius:14px;padding:18px;text-align:center;box-shadow:0 12px 40px rgba(19,41,61,0.14)}
-  .sheet h3{margin:0 0 6px 0;color:var(--accent)}
-  .sheet p{margin:0;color:#666}
-  /* particle (CSS-based small spark) */
-  .spark{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 8px rgba(255,183,3,0.7)}
-  /* responsive tweaks */
-  @media (max-width:420px){.brand .title{font-size:14px}.chip{padding:7px 8px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Volt Archer | Charger Controller</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --primary: #3b82f6;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --text: #1e293b;
+            --string: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* UI Overlays */
+        #hud {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(4px);
+        }
+
+        .stat-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-size: 24px; font-weight: 900; color: var(--text); line-height: 1; }
+
+        #input-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            transition: opacity 0.3s;
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; }
+        .dot.active { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+
+        /* Modals */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 24px;
+        }
+
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 340px;
+            padding: 32px;
+            border-radius: 28px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h1 { margin: 0 0 12px; font-size: 28px; font-weight: 900; color: var(--text); }
+        .modal p { color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+        
+        .warning-box {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            color: var(--danger);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            margin-bottom: 12px;
+        }
+
+        button.primary { background: var(--primary); color: white; }
+        button.secondary { background: #f1f5f9; color: #475569; }
+        button:active { transform: scale(0.96); }
+
+        #game-over { display: none; }
+    </style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <div class="brand">
-      <div class="logo">C</div>
-      <div>
-        <div class="title">Charchery (Prototype)</div>
-        <div style="font-size:12px;color:#555">Plug to nock • Unplug to fire • Touch fallback available</div>
-      </div>
-    </div>
 
-    <div class="hud">
-      <div class="chip state" id="cableState">Cable: <strong id="cState">unknown</strong></div>
-      <div class="chip"><span style="font-weight:700;" id="score">0</span> pts</div>
-    </div>
-  </header>
-
-  <main>
-    <div id="gameWrap">
-      <div class="overlay">
-        <div class="scoreBox">Multiplier: <span id="mult">x1</span></div>
-        <div class="scoreBox">Combo: <span id="combo">0</span></div>
-      </div>
-
-      <canvas id="gameCanvas"></canvas>
-
-      <div class="bottomHUD">
-        <div class="state" id="stateText">Ready</div>
-        <div style="display:flex;gap:8px">
-          <button class="smallButton" id="toggleInput">Use Touch Only</button>
-          <button class="bigButton pulse" id="testButton">Test Cable Input</button>
+<div id="game-wrapper">
+    <div id="hud">
+        <div class="stat">
+            <div class="stat-label">Score</div>
+            <div id="score-display" class="stat-value">0</div>
         </div>
-      </div>
-
-      <!-- Game over sheet -->
-      <div class="gameOver" id="gameOver">
-        <div class="sheet">
-          <h3 id="finalTitle">Game Over</h3>
-          <p style="margin-top:8px">Score: <strong id="finalScore">0</strong></p>
-          <p class="muted" id="bestScoreText">Best: 0</p>
-          <div style="margin-top:12px;display:flex;gap:10px;justify-content:center">
-            <button class="bigButton" id="restartBtn">Play Again</button>
-            <button class="smallButton" id="closeOver">Close</button>
-          </div>
+        <div class="stat">
+            <div class="stat-label">Combo</div>
+            <div id="combo-display" class="stat-value">x1</div>
         </div>
-      </div>
-
     </div>
-  </main>
-</div>
 
-<!-- safety / intro modal -->
-<div class="modal open" id="introModal">
-  <div class="modalCard">
-    <h2>Charger-Controlled Mode</h2>
-    <p>
-      This prototype can use your phone’s charger insertion/removal as a physical controller: plug in to draw the bow, pull out to fire.
-    </p>
-    <p class="muted">Warning: Repeatedly plugging/unplugging chargers may damage cables or the phone's connector. Use a robust/sacrificial cable if you experiment. You can choose touch-only controls below.</p>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-      <button class="smallButton" id="optTouch">Use Touch Only</button>
-      <button class="bigButton" id="acceptBtn">I Understand — Try Cable Mode</button>
+    <div id="input-indicator">
+        <div id="status-dot" class="dot"></div>
+        <span id="status-text">WAITING FOR CABLE</span>
     </div>
-  </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Start Modal -->
+    <div id="start-modal" class="overlay">
+        <div class="modal">
+            <h1>VOLT ARCHER</h1>
+            <p>A physical arcade experience. Use your <b>charging cable</b> as a real bowstring.</p>
+            <div class="warning-box">
+                ⚠️ Repeatedly plugging/unplugging can wear down your device's port. Use responsibly.
+            </div>
+            <button id="btn-cable" class="primary">START CABLE MODE</button>
+            <button id="btn-touch" class="secondary">TOUCH ONLY MODE</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over" class="overlay">
+        <div class="modal">
+            <h1 id="final-status">MISS!</h1>
+            <p>Your combo was broken.</p>
+            <button id="btn-restart" class="primary">TRY AGAIN</button>
+        </div>
+    </div>
 </div>
 
 <script>
-/*
-  Charchery Prototype
-  - uses Battery Status API if available for detecting plug/unplug
-  - fallback: touch/hold to draw, release to fire
-  - canvas-based game world and animation loop
-  - CSS3 used for HUD/modal animations and small spark effects
-*/
+/**
+ * CONSTANTS & CONFIG
+ */
+const DRAW_SPEED = 0.0008; // How fast the bow draws (1.25s for full)
+const MAX_POWER = 1.0;
+const GRAVITY = 0.18;
+const SPRING_K = 0.12;
+const DAMPING = 0.85;
+const SHAKE_INTENSITY = 8;
+const HITSTOP_MS = 40;
 
-/* ---------------------------
-   Feature flags and state
-   --------------------------- */
-const debug = false;
-const useTouchOnlyKey = 'charchery_touch_only';
-let useTouchOnly = (localStorage.getItem(useTouchOnlyKey) === 'true');
-let cableAvailable = false;
-let cablePlugged = false;
-let lastCableEventTime = 0;
-const cableDebounce = 220; // ms
-let batteryObj = null;
+/**
+ * GAME ENGINE
+ */
+class Game {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.width = 0;
+        this.height = 0;
+        
+        this.score = 0;
+        this.combo = 1;
+        this.bestCombo = 1;
+        
+        this.isActive = false;
+        this.isDrawing = false;
+        this.drawPower = 0;
+        
+        // Spring physics for the string
+        this.stringPos = 0; 
+        this.stringVel = 0;
+        this.stringOffset = 0; // Visual vibration/overshoot
 
-/* ---------------------------
-   DOM refs
-   --------------------------- */
-const introModal = document.getElementById('introModal');
-const acceptBtn = document.getElementById('acceptBtn');
-const optTouch = document.getElementById('optTouch');
-const testButton = document.getElementById('testButton');
-const toggleInput = document.getElementById('toggleInput');
-const cState = document.getElementById('cState');
-const cableStateChip = document.getElementById('cableState');
-const scoreEl = document.getElementById('score');
-const multEl = document.getElementById('mult');
-const comboEl = document.getElementById('combo');
-const stateText = document.getElementById('stateText');
-const gameOverSheet = document.getElementById('gameOver');
-const finalScore = document.getElementById('finalScore');
-const bestScoreText = document.getElementById('bestScoreText');
-const restartBtn = document.getElementById('restartBtn');
-const closeOver = document.getElementById('closeOver');
-
-/* ---------------------------
-   Canvas setup
-   --------------------------- */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d', { alpha: false });
-let W = 480, H = 800;
-function resizeCanvas(){
-  const rect = canvas.getBoundingClientRect();
-  // prefer CSS-controlled size (fills container). We'll set internal resolution scaled.
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  W = canvas.clientWidth;
-  H = canvas.clientHeight;
-  canvas.width = Math.floor(W * dpr);
-  canvas.height = Math.floor(H * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-window.addEventListener('resize', () => { resizeCanvas(); });
-resizeCanvas();
-
-/* ---------------------------
-   Game variables
-   --------------------------- */
-let lastTime = performance.now();
-let running = false;
-let player = null;
-let arrows = [];
-let targets = [];
-let particles = [];
-let score = 0;
-let multiplier = 1;
-let combo = 0;
-let highScore = parseInt(localStorage.getItem('charchery_best')||'0',10) || 0;
-
-/* ---------------------------
-   Gameplay constants
-   --------------------------- */
-const GRAV = 1200; // px/s^2
-const ARROW_SPEED_BASE = 1200; // initial arrow speed scaler
-const TARGET_SPAWN_BASE = 1800; // ms
-let targetSpawnTimer = 0;
-let spawnInterval = TARGET_SPAWN_BASE;
-let waveTime = 0;
-
-/* ---------------------------
-   Player & Bow (bottom) representation
-   --------------------------- */
-function resetGameState(){
-  arrows = [];
-  targets = [];
-  particles = [];
-  score = 0;
-  multiplier = 1;
-  combo = 0;
-  spawnInterval = TARGET_SPAWN_BASE;
-  player = {
-    x: W/2,
-    y: H - 90,
-    radius: 28,
-    drawPower: 0, // 0..1
-    isDrawing: false,
-    drawStart: 0,
-    momentum: 0,
-    fatigue: 0
-  };
-  lastTime = performance.now();
-  running = true;
-  gameOverSheet.classList.remove('visible');
-  updateHUD();
-}
-
-/* ---------------------------
-   Utilities
-   --------------------------- */
-function now(){ return performance.now(); }
-function rand(min,max){ return Math.random()*(max-min)+min; }
-function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
-
-/* ---------------------------
-   Arrow & target constructors
-   --------------------------- */
-function spawnTarget(){
-  // variety: small stationary, moving horizontal, banking ball (diagonal bounce)
-  const typeRoll = Math.random();
-  let type = 'stationary';
-  if(typeRoll < 0.18) type='moving';
-  else if(typeRoll < 0.36) type='banking';
-  const size = type==='stationary' ? rand(24,42) : (type==='moving'?rand(26,44):rand(18,34));
-  const t = {
-    id: Math.random().toString(36).slice(2,8),
-    x: rand(size, W-size),
-    y: -size - 8,
-    size,
-    type,
-    speedY: rand(80, 150),
-    speedX: type==='moving' ? rand(-120,120) : (type==='banking'? rand(-140,140):0),
-    life: 1,
-    bankBounces: 0
-  };
-  targets.push(t);
-}
-
-function spawnArrow(startX, startY, vx, vy){
-  const a = {
-    x: startX, y: startY, vx: vx, vy: vy, len: 44, rot: Math.atan2(vy, vx), life: 5
-  };
-  arrows.push(a);
-}
-
-/* ---------------------------
-   Particle (CSS spark) spawn
-   --------------------------- */
-function spawnSpark(x,y,color){
-  const el = document.createElement('div');
-  el.className = 'spark';
-  el.style.left = `${x}px`;
-  el.style.top = `${y}px`;
-  el.style.background = color || 'var(--accent-2)';
-  el.style.pointerEvents = 'none';
-  el.style.opacity = '1';
-  el.style.transform = 'translate(-50%,-50%) scale(0.6)';
-  document.getElementById('gameWrap').appendChild(el);
-  // animate via CSS / JS
-  const dx = rand(-60,60), dy = rand(-120,-20), dur = rand(380,780);
-  el.animate([
-    { transform:`translate(-50%,-50%) translate(0px,0px) scale(0.6)`, opacity:1 },
-    { transform:`translate(-50%,-50%) translate(${dx}px,${dy}px) scale(0.2)`, opacity:0 }
-  ], { duration: dur, easing:'cubic-bezier(.2,.9,.3,1)' });
-  setTimeout(()=> el.remove(), dur+40);
-}
-
-/* ---------------------------
-   Collision helpers
-   --------------------------- */
-function pointInRect(px,py,rx,ry,rw,rh){
-  return px>=rx && px<=rx+rw && py>=ry && py<=ry+rh;
-}
-
-/* ---------------------------
-   Drawing
-   --------------------------- */
-function drawHUD(){
-  // handled via DOM; canvas draws game world
-}
-
-function drawScene(dt){
-  ctx.clearRect(0,0,W,H);
-  // background ground gradient
-  const grd = ctx.createLinearGradient(0,0,0,H);
-  grd.addColorStop(0,'#fff8ea');
-  grd.addColorStop(1,'#fff1d6');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0,0,W,H);
-
-  // draw targets
-  for(let t of targets){
-    ctx.save();
-    ctx.translate(t.x, t.y);
-    // banking ball bounce visual: rotate slightly based on speedX
-    if(t.type==='banking'){
-      const tilt = clamp(t.speedX/200, -0.6, 0.6);
-      ctx.rotate(tilt);
-    }
-    // draw ring / core
-    ctx.beginPath();
-    ctx.fillStyle = t.type==='banking' ? '#ffd166' : (t.type==='moving' ? '#06d6a0' : '#ef476f');
-    ctx.arc(0,0,t.size/2,0,Math.PI*2);
-    ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = 'rgba(19,41,61,0.06)';
-    ctx.stroke();
-    // inner bull
-    ctx.beginPath();
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.arc(0,0,t.size/2.8,0,Math.PI*2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  // draw arrows
-  for(let a of arrows){
-    ctx.save();
-    ctx.translate(a.x, a.y);
-    ctx.rotate(a.rot);
-    // shaft
-    ctx.fillStyle = '#4a4a4a';
-    ctx.fillRect(-a.len/2, -3, a.len, 6);
-    // tip
-    ctx.beginPath();
-    ctx.fillStyle = '#13293d';
-    ctx.moveTo(a.len/2, 0);
-    ctx.lineTo(a.len/2 - 12, -8);
-    ctx.lineTo(a.len/2 - 12, 8);
-    ctx.closePath();
-    ctx.fill();
-    // fletch
-    ctx.fillStyle = '#ffb703';
-    ctx.fillRect(-a.len/2 - 6, -6, 6, 4);
-    ctx.fillRect(-a.len/2 - 6, 2, 6, 4);
-    ctx.restore();
-  }
-
-  // draw bow + player
-  drawBow(player.x, player.y, player.drawPower);
-}
-
-function drawBow(x,y,drawPower){
-  // bowstring, bow body, and nocked arrow (in draw)
-  ctx.save();
-  // bow body
-  ctx.translate(x, y);
-  ctx.lineWidth = 5;
-  ctx.strokeStyle = '#6d2b86';
-  // arc for bow (left side)
-  ctx.beginPath();
-  ctx.moveTo(-40, -60);
-  ctx.quadraticCurveTo(-120, 0, -40, 60);
-  ctx.stroke();
-
-  // bowstring anchored points
-  const top = {x: 10, y: -60}, bot = {x: 10, y: 60};
-  // string pull offset based on drawPower
-  const pull = clamp(drawPower, 0, 1) * 110; // px internal
-  const mid = {x: -pull, y: 0};
-
-  // anticipation squash/stretch (CSS3 alternative uses DOM; here we draw)
-  ctx.beginPath();
-  ctx.moveTo(top.x, top.y);
-  ctx.quadraticCurveTo(mid.x, mid.y, bot.x, bot.y);
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 2 + drawPower*3;
-  ctx.stroke();
-
-  // nocked arrow visual (when drawing)
-  if(drawPower > 0.001){
-    ctx.save();
-    ctx.translate(mid.x, mid.y);
-    ctx.rotate(0);
-    // tiny arrow
-    ctx.fillStyle = '#13293d';
-    ctx.fillRect(-12, -3, 22, 6);
-    ctx.beginPath();
-    ctx.moveTo(10,0); ctx.lineTo(0,-6); ctx.lineTo(0,6); ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
-  // player circle behind bow
-  ctx.beginPath();
-  ctx.fillStyle = '#13293d';
-  ctx.arc(90, 0, 36, 0, Math.PI*2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-/* ---------------------------
-   Physics update
-   --------------------------- */
-function update(dt){
-  // update spawn timer
-  waveTime += dt;
-  targetSpawnTimer += dt*1000;
-  if(targetSpawnTimer > spawnInterval){
-    spawnTarget();
-    targetSpawnTimer = 0;
-    // slightly decrease interval over time
-    spawnInterval = clamp(spawnInterval * 0.995, 600, TARGET_SPAWN_BASE);
-  }
-
-  // update targets
-  for(let i = targets.length-1; i>=0; i--){
-    const t = targets[i];
-    t.x += (t.speedX * dt);
-    t.y += (t.speedY * dt);
-    // banking bounce off screen edges
-    if(t.type==='banking'){
-      if(t.x < t.size/2){
-        t.x = t.size/2;
-        t.speedX = -t.speedX * 0.86;
-        t.bankBounces++;
-        spawnSpark(t.x, t.y, '#ffd166');
-      } else if(t.x > W - t.size/2){
-        t.x = W - t.size/2;
-        t.speedX = -t.speedX * 0.86;
-        t.bankBounces++;
-        spawnSpark(t.x, t.y, '#ffd166');
-      }
-    } else {
-      // moving targets reflect mildly
-      if(t.x < t.size/2 || t.x > W - t.size/2){
-        t.speedX = -t.speedX;
-      }
+        this.arrows = [];
+        this.targets = [];
+        this.particles = [];
+        
+        this.shake = 0;
+        this.hitStopUntil = 0;
+        this.lastFrameTime = 0;
+        
+        this.cableMode = false;
+        this.setupEvents();
+        this.resize();
     }
 
-    // if off bottom remove (missed) and reset combo
-    if(t.y > H + 60){
-      targets.splice(i,1);
-      combo = 0;
-      multiplier = 1;
-      updateHUD();
+    setupEvents() {
+        window.addEventListener('resize', () => this.resize());
+        
+        // Touch Fallback
+        window.addEventListener('touchstart', (e) => {
+            if (!this.isActive) return;
+            e.preventDefault();
+            this.startDraw();
+        }, { passive: false });
+
+        window.addEventListener('touchend', (e) => {
+            if (!this.isActive) return;
+            e.preventDefault();
+            this.releaseDraw();
+        }, { passive: false });
+
+        // Battery Logic
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                battery.addEventListener('chargingchange', () => {
+                    if (!this.isActive || !this.cableMode) return;
+                    if (battery.charging) this.startDraw();
+                    else this.releaseDraw();
+                });
+            });
+        }
     }
-  }
 
-  // update arrows
-  for(let i = arrows.length-1; i>=0; i--){
-    const a = arrows[i];
-    // gravity affects vy
-    a.vy += GRAV * dt;
-    a.x += a.vx * dt;
-    a.y += a.vy * dt;
-    a.rot = Math.atan2(a.vy, a.vx);
-    a.life -= dt;
-    if(a.y > H + 60 || a.life < 0){
-      arrows.splice(i,1);
-      continue;
+    resize() {
+        this.width = this.canvas.width = window.innerWidth;
+        this.height = this.canvas.height = window.innerHeight;
     }
 
-    // collision with targets
-    for(let j = targets.length-1; j>=0; j--){
-      const t = targets[j];
-      // approximate tip position
-      const tipX = a.x + Math.cos(a.rot) * (a.len/2);
-      const tipY = a.y + Math.sin(a.rot) * (a.len/2);
-      const dx = tipX - t.x, dy = tipY - t.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if(dist < t.size/2){
-        // hit
-        spawnSpark(t.x, t.y, '#06d6a0');
-        // scoring
-        const points = Math.round(10 * multiplier * (t.type==='banking'?1.5:1));
-        score += points;
-        combo++;
-        multiplier = 1 + Math.floor(combo/3);
-        updateHUD();
-        // remove arrow & target
-        arrows.splice(i,1);
-        targets.splice(j,1);
-        break;
-      }
+    startDraw() {
+        if (this.isDrawing) return;
+        this.isDrawing = true;
+        document.getElementById('status-dot').classList.add('active');
     }
-  }
 
-  // draw with dt
-  drawScene(dt);
+    releaseDraw() {
+        if (!this.isDrawing) return;
+        this.isDrawing = false;
+        document.getElementById('status-dot').classList.remove('active');
+        
+        if (this.drawPower > 0.1) {
+            this.fire();
+        } else {
+            // Cancel pull
+            this.stringVel = this.drawPower * 40;
+            this.drawPower = 0;
+        }
+    }
+
+    fire() {
+        const power = this.drawPower;
+        const arrow = new Arrow(
+            this.width / 2, 
+            this.height * 0.85, 
+            -15 - (power * 10)
+        );
+        this.arrows.push(arrow);
+        
+        // Trigger physical feedback
+        this.stringVel = power * 60;
+        this.drawPower = 0;
+    }
+
+    spawnTarget() {
+        const difficulty = Math.min(this.score / 1000, 1);
+        const type = Math.random() > 0.7 ? 'banking' : 'normal';
+        this.targets.push(new Target(this.width, difficulty, type));
+    }
+
+    update(now) {
+        if (Date.now() < this.hitStopUntil) return;
+
+        const dt = now - this.lastFrameTime;
+        this.lastFrameTime = now;
+
+        if (!this.isActive) return;
+
+        // Draw Progression
+        if (this.isDrawing) {
+            this.drawPower = Math.min(MAX_POWER, this.drawPower + DRAW_SPEED * dt);
+        }
+
+        // String Physics (Damped Harmonic Oscillator)
+        const springForce = -SPRING_K * this.stringOffset;
+        this.stringVel += springForce;
+        this.stringVel *= DAMPING;
+        this.stringOffset += this.stringVel;
+
+        // Update Entities
+        this.arrows.forEach((a, i) => {
+            a.update();
+            // Check Collision
+            this.targets.forEach((t) => {
+                if (!t.dead && a.collides(t)) {
+                    this.onHit(a, t);
+                }
+            });
+            if (a.y < -100 || a.y > this.height + 100) this.arrows.splice(i, 1);
+        });
+
+        this.targets.forEach((t, i) => {
+            t.update(this.width);
+            if (t.y > this.height + 50) {
+                this.targets.splice(i, 1);
+                this.onMiss();
+            }
+        });
+
+        this.particles.forEach((p, i) => {
+            p.update();
+            if (p.life <= 0) this.particles.splice(i, 1);
+        });
+
+        // Spawn Logic
+        if (Math.random() < 0.015) this.spawnTarget();
+
+        if (this.shake > 0) this.shake *= 0.9;
+    }
+
+    onHit(arrow, target) {
+        target.dead = true;
+        arrow.active = false;
+        
+        this.score += 10 * Math.floor(this.combo);
+        this.combo += 0.2;
+        
+        document.getElementById('score-display').innerText = this.score;
+        document.getElementById('combo-display').innerText = `x${Math.floor(this.combo)}`;
+        
+        // Juice
+        this.shake = SHAKE_INTENSITY;
+        this.hitStopUntil = Date.now() + HITSTOP_MS;
+        
+        // Burst
+        for (let i = 0; i < 15; i++) {
+            this.particles.push(new Particle(target.x, target.y, target.color));
+        }
+    }
+
+    onMiss() {
+        this.combo = 1;
+        document.getElementById('combo-display').innerText = `x1`;
+        this.shake = 4;
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        
+        this.ctx.save();
+        if (this.shake > 0.2) {
+            this.ctx.translate((Math.random()-0.5)*this.shake, (Math.random()-0.5)*this.shake);
+        }
+
+        // Draw Strings and Bow
+        const bowX = this.width / 2;
+        const bowY = this.height * 0.85;
+        const drawY = bowY + (this.drawPower * 80) + this.stringOffset;
+
+        // Bow Arc
+        this.ctx.beginPath();
+        this.ctx.lineWidth = 10;
+        this.ctx.lineCap = 'round';
+        this.ctx.strokeStyle = '#1e293b';
+        this.ctx.moveTo(bowX - 100, bowY - 20);
+        this.ctx.quadraticCurveTo(bowX, bowY - 50, bowX + 100, bowY - 20);
+        this.ctx.stroke();
+
+        // String
+        this.ctx.beginPath();
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = '#94a3b8';
+        this.ctx.moveTo(bowX - 100, bowY - 20);
+        this.ctx.lineTo(bowX, drawY);
+        this.ctx.lineTo(bowX + 100, bowY - 20);
+        this.ctx.stroke();
+
+        // Nocked Arrow
+        if (this.isDrawing || this.drawPower > 0) {
+            this.ctx.save();
+            this.ctx.translate(bowX, drawY);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(0, -60);
+            this.ctx.lineWidth = 4;
+            this.ctx.strokeStyle = '#1e293b';
+            this.ctx.stroke();
+            this.ctx.restore();
+        }
+
+        this.targets.forEach(t => t.draw(this.ctx));
+        this.arrows.forEach(a => a.draw(this.ctx));
+        this.particles.forEach(p => p.draw(this.ctx));
+
+        this.ctx.restore();
+    }
+
+    loop(now) {
+        this.update(now);
+        this.draw();
+        requestAnimationFrame((t) => this.loop(t));
+    }
+
+    start(cable) {
+        this.cableMode = cable;
+        this.isActive = true;
+        document.getElementById('start-modal').style.display = 'none';
+        document.getElementById('status-text').innerText = cable ? "CABLE READY" : "TOUCH READY";
+        requestAnimationFrame((t) => this.loop(t));
+    }
 }
 
-/* ---------------------------
-   Game loop
-   --------------------------- */
-function gameLoop(ts){
-  const dt = Math.min((ts - lastTime)/1000, 0.05);
-  lastTime = ts;
-  if(running){
-    update(dt);
-  }
-  requestAnimationFrame(gameLoop);
-}
-requestAnimationFrame(gameLoop);
+/**
+ * ENTITY CLASSES
+ */
+class Arrow {
+    constructor(x, y, vy) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = vy;
+        this.active = true;
+        this.angle = -Math.PI / 2;
+    }
 
-/* ---------------------------
-   HUD & controls
-   --------------------------- */
-function updateHUD(){
-  scoreEl.textContent = Math.max(0, score|0);
-  multEl.textContent = 'x' + (multiplier|0);
-  comboEl.textContent = (combo|0);
-  cState.textContent = cableAvailable ? (cablePlugged? 'plugged' : 'unplugged') : 'unavailable';
-  if(!cableAvailable) cableStateChip.style.opacity = 0.8;
-  stateText.textContent = player && player.isDrawing ? 'Drawing...' : 'Ready';
-}
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += GRAVITY;
+        this.angle = Math.atan2(this.vy, this.vx);
+    }
 
-/* ---------------------------
-   Input & charger detection
-   --------------------------- */
-function enableTouchOnly(){
-  useTouchOnly = true;
-  localStorage.setItem(useTouchOnlyKey, 'true');
-  toggleInput.textContent = 'Using Touch Only';
-  alert('Touch-only mode enabled. You can toggle this later.');
-}
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(-30, 0);
+        ctx.lineTo(10, 0);
+        ctx.stroke();
+        // Head
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(10, -6);
+        ctx.lineTo(22, 0);
+        ctx.lineTo(10, 6);
+        ctx.fill();
+        ctx.restore();
+    }
 
-function disableTouchOnly(){
-  useTouchOnly = false;
-  localStorage.removeItem(useTouchOnlyKey);
-  toggleInput.textContent = 'Use Touch Only';
-}
-
-toggleInput.addEventListener('click', ()=>{
-  if(useTouchOnly) disableTouchOnly();
-  else enableTouchOnly();
-});
-
-acceptBtn.addEventListener('click', ()=>{
-  introModal.classList.remove('open');
-  introModal.style.display = 'none';
-  useTouchOnly = false;
-  localStorage.removeItem(useTouchOnlyKey);
-  initBatteryDetection();
-});
-
-optTouch.addEventListener('click', ()=>{
-  introModal.classList.remove('open');
-  introModal.style.display = 'none';
-  enableTouchOnly();
-});
-
-/* test cable button to simulate plug/unplug for devices without battery API */
-testButton.addEventListener('click', ()=>{
-  simulateCableToggle();
-});
-
-/* restart */
-restartBtn.addEventListener('click', ()=>{
-  resetGameState();
-});
-
-/* close game over */
-closeOver.addEventListener('click', ()=>{
-  gameOverSheet.classList.remove('visible');
-});
-
-/* touch fallback: hold to draw, release to fire */
-let touchHoldTimer = null;
-let touchPointerId = null;
-let lastTouchPos = null;
-
-function touchStartHandler(e){
-  if(useTouchOnly){
-    e.preventDefault();
-    startDraw();
-  }
-}
-function touchEndHandler(e){
-  if(useTouchOnly){
-    e.preventDefault();
-    fireArrowFromDraw();
-  }
-}
-document.addEventListener('pointerdown', (e)=>{
-  if(useTouchOnly){
-    e.preventDefault();
-    startDraw();
-  }
-});
-document.addEventListener('pointerup', (e)=>{
-  if(useTouchOnly){
-    e.preventDefault();
-    fireArrowFromDraw();
-  }
-});
-
-/* ---------------------------
-   Draw & Fire mechanics
-   --------------------------- */
-function startDraw(){
-  if(!running) resetGameState();
-  if(player.isDrawing) return;
-  player.isDrawing = true;
-  player.drawStart = performance.now();
-  player.drawPower = 0;
-  // ramp draw visually
-  const ramp = (t) => {
-    if(!player.isDrawing) return;
-    const elapsed = (performance.now() - player.drawStart)/1000;
-    const p = clamp(elapsed/1.4, 0, 1); // full draw reached at 1.4s
-    player.drawPower = p;
-    requestAnimationFrame(ramp);
-  };
-  requestAnimationFrame(ramp);
-  updateHUD();
+    collides(target) {
+        const dx = this.x - target.x;
+        const dy = this.y - target.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        return dist < target.radius + 10;
+    }
 }
 
-function fireArrowFromDraw(){
-  if(!player.isDrawing) return;
-  player.isDrawing = false;
-  const p = clamp(player.drawPower, 0.06, 1);
-  // velocity is proportional to draw power and angle is slightly upward
-  const angle = -Math.PI * 0.4; // 72 degrees up
-  const speed = ARROW_SPEED_BASE * (0.6 + p*1.4);
-  const vx = Math.cos(angle) * speed;
-  const vy = Math.sin(angle) * speed;
-  spawnArrow(player.x - 40, player.y - 8, vx, vy);
-  // scoring/feedback
-  player.drawPower = 0;
-  spawnSpark(player.x, player.y, '#ffb703');
-  // small camera shake via CSS transform
-  const gw = document.getElementById('gameWrap');
-  gw.animate([{transform:'translateY(0px)'},{transform:'translateY(-6px)'},{transform:'translateY(0px)'}],{duration:220,easing:'cubic-bezier(.2,.9,.3,1)'});
-  updateHUD();
+class Target {
+    constructor(canvasWidth, difficulty, type) {
+        this.radius = 28 + Math.random() * 12;
+        this.x = this.radius + Math.random() * (canvasWidth - this.radius * 2);
+        this.y = -this.radius - 20;
+        this.speedY = 2 + (difficulty * 4) + Math.random() * 2;
+        this.speedX = (Math.random() - 0.5) * (difficulty * 8);
+        this.type = type;
+        this.color = `hsl(${Math.random() * 360}, 75%, 60%)`;
+        this.dead = false;
+        
+        this.squash = 1;
+        this.wobble = Math.random() * Math.PI;
+    }
+
+    update(width) {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.wobble += 0.1;
+
+        if (this.type === 'banking') {
+            if (this.x < this.radius || this.x > width - this.radius) {
+                this.speedX *= -1;
+                this.squash = 0.6; // Hit side
+            }
+        }
+        
+        this.squash += (1 - this.squash) * 0.15;
+    }
+
+    draw(ctx) {
+        if (this.dead) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        
+        // Dynamic squash and stretch based on velocity/impact
+        const s = this.squash;
+        ctx.scale(s, 1/s);
+        
+        // Soft Shadow
+        ctx.beginPath();
+        ctx.arc(6, 6, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.08)';
+        ctx.fill();
+
+        // Body
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+        // Gloss
+        ctx.beginPath();
+        ctx.arc(-this.radius * 0.3, -this.radius * 0.3, this.radius * 0.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.fill();
+
+        ctx.restore();
+    }
 }
 
-/* ---------------------------
-   Cable detection + simulation
-   --------------------------- */
-function simulateCableToggle(){
-  // simulate plug/unplug
-  cablePlugged = !cablePlugged;
-  cableAvailable = true;
-  lastCableEventTime = now();
-  handleCableEvent(cablePlugged);
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 12;
+        this.vy = (Math.random() - 0.5) * 12;
+        this.color = color;
+        this.life = 1.0;
+        this.size = 4 + Math.random() * 4;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.03;
+    }
+    draw(ctx) {
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
 }
 
-function handleCableEvent(plugged){
-  const t = now();
-  if(t - lastCableEventTime < 60) { lastCableEventTime = t; } // just set
-  // debounce
-  if(now() - lastCableEventTime < cableDebounce){ return; }
-  lastCableEventTime = now();
+/**
+ * BOOTSTRAP
+ */
+const game = new Game();
 
-  cablePlugged = !!plugged;
-  updateHUD();
+document.getElementById('btn-cable').addEventListener('click', () => game.start(true));
+document.getElementById('btn-touch').addEventListener('click', () => game.start(false));
+document.getElementById('btn-restart').addEventListener('click', () => location.reload());
 
-  if(cablePlugged){
-    // treat as nock / start draw
-    startDraw();
-  } else {
-    // treat as release / fire
-    fireArrowFromDraw();
-  }
-}
-
-function initBatteryDetection(){
-  // If feature exists, use battery API
-  if('getBattery' in navigator){
-    navigator.getBattery().then(batt=>{
-      batteryObj = batt;
-      cableAvailable = true;
-      cablePlugged = !!batt.charging;
-      // initial state
-      cState.textContent = cablePlugged ? 'plugged' : 'unplugged';
-      cableStateChip.style.opacity = 1;
-      batt.addEventListener('chargingchange', ()=>{
-        // charging changed
-        const plugged = batt.charging;
-        // debounce noisy toggles
-        const t = now();
-        if(t - lastCableEventTime < cableDebounce) return;
-        lastCableEventTime = t;
-        handleCableEvent(plugged);
-      });
-    }).catch(err=>{
-      cableAvailable = false;
-      cState.textContent = 'unavailable';
-    });
-  } else {
-    cableAvailable = false;
-    cState.textContent = 'unavailable';
-  }
-  updateHUD();
-}
-
-/* ---------------------------
-   Game over & highscore
-   --------------------------- */
-function endGame(){
-  running = false;
-  finalScore.textContent = score;
-  if(score > highScore){
-    highScore = score;
-    localStorage.setItem('charchery_best', String(highScore));
-  }
-  bestScoreText.textContent = 'Best: ' + highScore;
-  gameOverSheet.classList.add('visible');
-}
-
-/* ---------------------------
-   Simple end condition (for prototype)
-   --------------------------- */
-setInterval(()=> {
-  // if too many missed waves with low activity, auto end (demo)
-  if(running && score > 0 && score < 0) { endGame(); }
-}, 2000);
-
-/* ---------------------------
-   Init
-   --------------------------- */
-(function init(){
-  // setup canvas CSS size
-  const gw = document.getElementById('gameWrap');
-  function sizeWrap(){
-    const w = Math.min(window.innerWidth - 32, 480);
-    const h = Math.max(520, window.innerHeight - 170);
-    gw.style.width = w + 'px';
-    gw.style.height = h + 'px';
-    resizeCanvas();
-  }
-  window.addEventListener('resize', sizeWrap, {passive:true});
-  sizeWrap();
-
-  // try battery detection once user dismisses modal
-  // if user previously chose touch-only, hide modal
-  if(useTouchOnly){
-    introModal.classList.remove('open');
-    introModal.style.display = 'none';
-    toggleInput.textContent = 'Using Touch Only';
-  } else {
-    // show modal (already visible)
-  }
-
-  // start paused until user acts
-  resetGameState();
-  updateHUD();
-  // run battery detection but only active after intro accepted
-  initBatteryDetection();
-
-  // safety: if play long enough, end condition or let user restart via button
-  // wire default controls for testing (space to simulate fire)
-  document.addEventListener('keydown',(e)=>{
-    if(e.code === 'Space') simulateCableToggle();
-  });
-
-})();
 </script>
 </body>
 </html>
+
+
