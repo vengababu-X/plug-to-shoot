@@ -1,22 +1,25 @@
+
 <p align="center">
   <img src="https://img.shields.io/badge/Plug%20to%20Shoot-⚡🏹-brightgreen?style=for-the-badge" alt="Plug to Shoot Badge">
 </p>
 
-<h1 align="center">⚡🏹 Plug-to-Shoot</h1>
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=700&size=28&pause=1000&color=FFB703&center=true&vCenter=true&width=600&lines=⚡+Plug-to-Shoot;🏹+Charger-Controlled+Archery+Game;🔌+Plug+to+Draw+%7C+Unplug+to+Fire" />
+</p>
 
 <p align="center">
   <strong>A charger-controlled bow & arrow game — plug to draw, unplug to fire!</strong>
 </p>
 
 <p align="center">
-  <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" width="300" alt="Animated Gameplay Preview">
+  🌐 <a href="https://vengababu-x.github.io/plug-to-shoot/">Play Live Demo</a>
 </p>
 
 ---
 
 ## 🎮 Live Demo
 
-🚀 Play it right now here:
+🚀 Play it here:
 
 👉 https://vengababu-x.github.io/plug-to-shoot/
 
@@ -24,124 +27,149 @@
 
 ## 🔥 What Makes This Game Special?
 
-- **⚡ Charger Input Gameplay**  
-  Plug your phone’s charger in to *pull the bowstring*, unplug to *launch the arrow*.
+- ⚡ **Charger Input Gameplay**  
+  Plug your phone’s charger to pull the bowstring, unplug to fire.
 
-- **🎨 Fully Animated Bow & Arrow**  
-  Elastic string, snap release, squash/stretch motion.
+- 🎨 **Fully Animated Bow & Arrow**  
+  Elastic string, snap-back release, squash & stretch motion.
 
-- **✨ Smooth Physics & Banking Targets**  
-  Targets fall straight, drift, and bounce with animated motion.
+- ✨ **Smooth Physics & Banking Targets**  
+  Targets fall, drift, and bounce off walls with animation.
 
-- **📱 Mobile-First Design**
-  Touch fallback works anywhere.
+- 📱 **Mobile-First Design**  
+  Touch fallback works on all devices.
 
 ---
 
-## 🧠 How It Works (Animation + Logic)
+## 🧠 How It Works (Logic Flow)
+
+```text
+🔌 Plug Charger
+      ↓
+🏹 Bow Draw Animation
+      ↓
+⏸ Hold to Charge Power
+      ↓
+❌ Unplug Charger
+      ↓
+🎯 Arrow Fired
+
+1. Plug Charger → Bow draws with elastic animation
+
+
+2. Hold → Power increases
+
+
+3. Unplug → Arrow fires instantly
+
+
+4. Hit Targets → Score & combo increase
+
+
+
+
+---
+``
+🎞️ Real Game Animations (Replace with Your GIFs)
+```
+> ⚠️ GitHub only supports animation via GIF or animated SVG
+Record your real gameplay and replace these files.
+
+
+
+assets/
+├── gameplay.gif
+├── bow-draw.gif
+├── arrow-release.gif
+└── target-hit.gif
 
 <p align="center">
-  <img src="https://media.giphy.com/media/l0MYu5F2pMhxM9Z3u/giphy.gif" width="360" alt="Controller Animation">
+  <img src="assets/gameplay.gif" width="260">
+  <img src="assets/bow-draw.gif" width="260">
+</p><p align="center">
+  <img src="assets/arrow-release.gif" width="260">
+  <img src="assets/target-hit.gif" width="260">
 </p>
-
-1. **Plug Charger**  
-   ↳ The bow draws back (animated elastic motion).  
-2. **Hold to Charge**  
-   ↳ Power meter builds up.  
-3. **Unplug Charger**  
-   ↳ Arrow fires with smooth motion.  
-4. **Hit Targets**  
-   ↳ Score multiplies, particle effects show.
-
 ---
 
-## 🖼️ Screenshots + Mini Previews
+🕹️ Controls
 
-### 🎯 Main Game Screen
-![Gameplay Screenshot](assets/screenshot_play.png)
+Action	Input
 
----
+Draw Bow	Plug Charger or Touch & Hold
+Fire Arrow	Unplug Charger or Release Touch
 
-### 💥 Target Hit Animation
-<p align="center">
-  <img src="https://media.giphy.com/media/xUPGcEliCc7bETyfO8/giphy.gif" width="280" alt="Impact Animation">
-</p>
-
----
-
-## 🕹️ Controls
-
-| Action | Input |
-|--------|-------|
-| Draw Bow | Plug Charger *or* Touch & Hold |
-| Fire Arrow | Unplug Charger *or* Release Touch |
-
----
-
-## 📁 Project Structure
 ```
-📦 plug-to-shoot ├── index.html ├── README.md ├── assets/ │   ├── arrow.png │   ├── target1.png │   ├── target2.png │   ├── splash.gif │   └── ui-sprites.svg └── scripts/ └── game.js
-```
+
 ---
 
-## 🛠️ Technology Used
-```
-| Layer | Tech |
-|-------|------|
-| UI & Animation | HTML5 + CSS3 |
-| Game Logic | Vanilla JavaScript |
-| Rendering | requestAnimationFrame |
-| Hosting | GitHub Pages |
-| Input | Battery Status API + Touch |
-```
+📁 Project Structure
+
+📦 plug-to-shoot
+├── index.html
+├── README.md
+└── assets/
+    ├── gameplay.gif
+    ├── bow-draw.gif
+    ├── arrow-release.gif
+    ├── target-hit.gif
+
+
 ---
+```
+🛠️ Technology Used
 
-## 🚀 Setup & Deployment (Animated Style)
+Layer	Tech
 
-```bash
-# Clone the repo
-git clone https://github.com/<your-username>/plug-to-shoot.git
+UI & Animation	HTML5 + CSS3
+Game Logic	Vanilla JavaScript
+Rendering	requestAnimationFrame
+Input	Battery Status API + Touch
+Hosting	GitHub Pages
 
-# Go into the repo
+```
+
+---
+```
+🚀 Setup & Deployment
+
+git clone https://github.com/vengababu-X/plug-to-shoot.git
 cd plug-to-shoot
 
-# Push to GitHub and enable Pages
-git add .
-git commit -m "Animated README + ready for PR"
-git push origin main
+Enable GitHub Pages
+Your game goes live at:
 
-🛫 GitHub Pages will auto-deploy at:
-
-https://<your-username>.github.io/plug-to-shoot/
-
-
+https://vengababu-x.github.io/plug-to-shoot/
+```
 ---
 ```
-🧩 Audio & Visual Feedback
+⚠️ Safety Note
 
-<p align="center">
-  <img src="https://media.giphy.com/media/xTiTnHvVgLF5mdn9AA/giphy.gif" width="280" alt="Animated Feedback">
-</p>• Micro hit-stop on arrows
-• Particle burst on hit
-• Screen shake physics
+This game uses your charging cable as a controller.
+
+Repeated plug/unplug may damage cables or ports
+
+Use a strong or spare cable
+
+Touch-only mode is always available
+
 ```
 
 ---
-
+```
 📜 License
 
-This project is open-source under the MIT License.
+MIT License
+Use it, modify it, learn from it.
 
 ```
 ---
-
-🌟 Thank You
-
-> Built with ❤️ and ⚡ physics by Vengababu X
-
 ```
-
 <p align="center">
-  <img src="https://img.shields.io/badge/Keep%20Gaming-🚀🎮-blue?style=flat-square" alt="Keep Gaming">
-</p>---
+  <strong>Built with ❤️ and ⚡ physics by Vengababu X</strong>
+</p><p align="center">
+  <img src="https://img.shields.io/badge/Keep%20Gaming-🚀🎮-blue?style=flat-square">
+</p>
+
+---
 
